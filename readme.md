@@ -1,6 +1,19 @@
 # DS Course Project: Alerting Platform 
 Final project of Distributed Systems course done together with [@olearczuk](https://github.com/olearczuk) and [@brzezinskimarcin](https://github.com/brzezinskimarcin).
 
+## Project overview
+
+Build a system that will send alert messages in case of system unavailability.
+In real life services fail more often than we’d like them to. As software engineers we are not using the service all the time but our users do. The alerting platforms help us notice the issues and attempt to fix them promptly.
+Real world example could be pagerduty.com.
+
+## Critical user journey
+ - Alerting platform will be monitoring a predefined set of HTTP services.
+ - When one of the services becomes unavailable the alerting platform will send a notification to the primary system administrator through a configured communication channel.
+ - In case the administrator does not respond the alerting platform will send a notification to the secondary service administrator.
+ - Alerting platform will log every contact attempt along with information about the administrators response.
+
+
 # Design doc
 ### Used technologies
  - Golang
