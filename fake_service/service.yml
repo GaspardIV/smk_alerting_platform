@@ -1,0 +1,14 @@
+# The smk-alerting-platform service provides a load-balancing proxy over the smk-alerting-platform-app
+# pods. By specifying the type as a 'LoadBalancer', Kubernetes Engine will
+# create an external HTTP load balancer.
+apiVersion: v1
+kind: Service
+metadata:
+  name: fake-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: fake_service
+  ports:
+  - port: 80
+    targetPort: 8080

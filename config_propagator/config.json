@@ -1,0 +1,18 @@
+[
+  {
+    "Url": "https://google.com",
+    "PrimaryAdministratorEmail": "ma.brzezinski@student.uw.edu.pl",
+    "SecondaryAdministratorEmail": "ka.konecki@student.uw.edu.pl",
+    "Frequency": 30,
+    "TimeUntilReporting": 60,
+    "AllowedResponseTime": 300
+  },
+  {
+    "Url": "http://34.118.64.175",
+    "PrimaryAdministratorEmail": "ma.brzezinski@student.uw.edu.pl",
+    "SecondaryAdministratorEmail": "s.olearczuk@student.uw.edu.pl",
+    "Frequency": 30,
+    "TimeUntilReporting": 60,
+    "AllowedResponseTime": 300
+  }
+]

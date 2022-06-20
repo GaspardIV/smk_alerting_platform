@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-service-cluster
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fake_service
+  template:
+    metadata:
+      labels:
+        app: fake_service
+    spec:
+      containers:
+      - name: fake-service-app
+        image: europe-central2-docker.pkg.dev/smk-alerting-platform/fake-service-repo/fake_service:latest
+        imagePullPolicy: Always
+        # This app listens on port 8080 for web traffic by default.
+        ports:
+        - containerPort: 8080
+        env:
+          - name: PORT
+            value: "8080"

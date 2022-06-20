@@ -1,0 +1,34 @@
+steps:
+  # RUN TESTS
+  - name: 'gcr.io/cloud-builders/go:debian'
+    id: 'tests'
+    entrypoint: 'bash'
+    args: ['./run_tests.sh']
+  # PAUSE SCHEDULER
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'pause_scheduler'
+    args: ['scheduler', 'jobs', 'pause', 'trigger-scheduler', '--project=smk-alerting-platform', '--location=europe-west1']
+  # PREPARE VENDORS FOR DEPLOY
+  - name: 'gcr.io/cloud-builders/go:debian'
+    id: 'prepare_vendors'
+    entrypoint: 'bash'
+    args: ['./prepare_vendors.sh']
+  # DEPLOY FUNCTIONS
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy_all'
+    entrypoint: 'bash'
+    args: ['./deploy_all.sh']
+  # PROPAGATE CONFIG
+  - name: 'gcr.io/cloud-builders/go'
+    id: 'propagate_config'
+    args: ['run', '.']
+    dir: 'config_propagator'
+    env: ['GOPATH=/gopath']
+    waitFor: ['pause_scheduler']
+  # RESUME SCHEDULER
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'resume_scheduler'
+    args: ['scheduler', 'jobs', 'resume', 'trigger-scheduler', '--project=smk-alerting-platform', '--location=europe-west1']
+    waitFor: ['deploy_all', 'propagate_config']
+options:
+  logging: CLOUD_LOGGING_ONLY
