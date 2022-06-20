@@ -1,14 +1,3 @@
-# Running locally
-```
-# install dependencies
-go get .
-
-# run locally
-./run_local.sh
-```
-
-# Running tests
-In order to run tests simply run `run_tests.sh` script. <br/>
 
 # Project structure:
     main.go - used for test local env initialization.
@@ -53,37 +42,18 @@ each site is a document and consist of fields:
 }
 ```
 
+# Running locally
+```
+# install dependencies
+go get .
 
-# ===================
+# run locally
+./run_local.sh
+```
+
+# Running tests
+In order to run tests simply run `run_tests.sh` script. <br/>
 
 
-# Firestore run from local environment
 
-Provide authentication credentials to your application code by setting the environment variable GOOGLE_APPLICATION_CREDENTIALS. This variable applies only to your current shell session. If you want the variable to apply to future shell sessions, set the variable in your shell startup file, for example in the ~/.bashrc or ~/.profile file.
-
-export GOOGLE_APPLICATION_CREDENTIALS="/home/user/path/to/file/smk-alerting-platform-35d7de1911ac.json"
-
-# Git hooks
-Add this to `.git/hooks/pre-commit` to automatically code formatting
-```bash
-#!/bin/sh
-
-gofiles=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$')
-[ -z "$gofiles" ] && exit 0
-
-unformatted=$(gofmt -l $gofiles)
-[ -z "$unformatted" ] && exit 0
-
-# Some files are not gofmt'd. Print message and fail.
-
-echo >&2 "Go files must be formatted with gofmt. Incorrect files:"
-for fn in $unformatted;
-do
-        echo >&2 " $PWD/$fn"
-done
-
-echo >&2 "Please run: "
-echo >&2 "gofmt -s -w -l $(git rev-parse --show-toplevel)"
-
-exit 1
 ```
