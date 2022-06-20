@@ -100,7 +100,6 @@ Deployment steps:
 Communication channels are encrypted out of the box, since we are using Sendgrid for sending messages.
 Links are obfuscated, because we are generating salted hashes which are stored in the database so they are not predictable and can’t be easily silenced.
 
-
 # Project structure:
     main.go - used for test local env initialization.
     config_propagator/ - script used to init database from config.
@@ -143,6 +142,134 @@ each site is a document and consist of fields:
   url: "google.com" // page address
 }
 ```
+
+## Functional tests raport:
+Fake-service has been used to perform these tests.
+
+### test scenario “outage primary admin resolved”
+```
+turn on fake service 
+test service is available
+  site-checker:
+    2022/01/26 16:23:41 site http://34.118.64.175 available
+turn off fake service 
+test service is unavailable
+  site-checker:  
+    2022/01/26 16:25:42 site http://34.118.64.175 is unavailable
+test mail has been sent
+  notifier: 
+    2022/01/26 16:26:43 Site http://34.118.64.175 is unavailable. Notifying primary administrator ma.brzezinski@student.uw.edu.pl...
+    2022/01/26 16:26:43 Sending email to ma.brzezinski@student.uw.edu.pl with the content: 
+    smk-alerting-platform: Your site http://34.118.64.175 is unavailable.
+    Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/confirmation-handler?hash=9fb95c4f271156279031f69b2844fe390e9c3a8f9dacbca7d60c44c1df1253ec to confirm you are working on the issue.
+    Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/resolved-handler?hash=d66446b0c38b2f970981a4dad7c2987931994247b56caf3159eb54864199bc80 once you resolve the issue.
+    2022/01/26 16:26:44 Email has been sent successfully.
+
+turn service on
+test resolved link
+  resolved-handler:
+    2022/01/26 16:27:22 resolved http://34.118.64.175
+test service state is available
+  site-checker:
+    2022/01/26 16:27:45 site http://34.118.64.175 available
+
+TEST PASSED
+```
+
+### test scenario “outage primary admin does not confirm”
+```
+turn on fake service 
+test service is available
+  site-checker:
+    2022/01/25 20:45:32 site http://34.118.64.175 available
+turn off fake service 
+test service is unavailable
+  site-checker: 
+    2022/01/26 15:50:04 site http://34.118.64.175 is unavailable
+test mail has been sent
+   notifier:
+     2022/01/26 15:51:34 Site http://34.118.64.175 is unavailable. Notifying primary administrator ma.brzezinski@student.uw.edu.pl…
+
+     2022/01/26 15:51:34 Sending email to ma.brzezinski@student.uw.edu.pl with the content:
+
+     Your site http://34.118.64.175 is unavailable. Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/confirmation-handler?hash=9fb95c4f271156279031f69b2844fe390e9c3a8f9dacbca7d60c44c1df1253ec to confirm you are working on the issue.
+     Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/resolved-handler?hash=d66446b0c38b2f970981a4dad7c2987931994247b56caf3159eb54864199bc80 once you resolve the issue.
+     2022/01/26 15:51:35 Email has been sent successfully.
+wait
+test mail to secondary administrator has been sent
+  notifier: 
+    2022/01/26 15:56:33 Primary administrator ma.brzezinski@student.uw.edu.pl of site http://34.118.64.175 has already been notified. Notifying secondary administrator... s.olearczuk@student.uw.edu.pl
+    2022/01/26 15:56:33 Sending email to s.olearczuk@student.uw.edu.pl with the content:
+    smk-alerting-platform: Your site http://34.118.64.175 is unavailable.
+    Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/resolved-handler?hash=d66446b0c38b2f970981a4dad7c2987931994247b56caf3159eb54864199bc80 once you resolve the issue.
+    2022/01/26 15:56:34 Email has been sent successfully.
+
+turn service on
+test resolved link
+  resolved-handler:
+    2022/01/26 16:05:54 resolved http://34.118.64.175
+test service state is available
+  site-checker:
+    2022/01/26 16:06:00 site http://34.118.64.175 available
+TEST PASSED
+```
+
+
+### test scenario “temporary outage without notification”
+```
+fake service turned on 
+test service is available
+  site-checker:
+    2022/01/26 16:45:41 site http://34.118.64.175 available
+fake service turned off
+test service is unavailable
+  site-checker:
+    16:46:44 site http://34.118.64.175 is unavailable
+within 60 seconds turn service on
+test mails has not been sent
+test status running
+  site-checker:
+    2022/01/26 16:47:15 site http://34.118.64.175 available
+
+
+TEST PASSED
+```
+
+### test scenario “outage primary admin confirm”
+```
+turn on fake service 
+test service is available
+ site-checker:
+  16:27:45 site http://34.118.64.175 available
+turn off fake service 
+test service is unavailable
+ site-checker:
+  2022/01/26 16:28:15 site http://34.118.64.175 is unavailable
+test mail has been sent
+ notifier:
+  2022/01/26 16:28:45 Site http://34.118.64.175 is unavailable. Notifying primary administrator ma.brzezinski@student.uw.edu.pl...
+  2022/01/26 16:28:45 Sending email to ma.brzezinski@student.uw.edu.pl with the content:
+  smk-alerting-platform: Your site http://34.118.64.175 is unavailable.
+  Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/confirmation-handler?hash=486957e89f1d774979dc5516715ea304f096914797235efc02298bc5054a5bc7 to confirm you are working on the issue.
+  Visit the following link: https://europe-central2-smk-alerting-platform.cloudfunctions.net/resolved-handler?hash=0f61b61a7162d28d08db7522f64c4e005dfe2b0520a61ee5aa304d1113d38cf6 once you resolve the issue.
+  2022/01/26 16:28:46 Email has been sent successfully.
+test confirmation link
+ confirmation-handler:
+  2022/01/26 16:30:46 confirmed http://34.118.64.175
+wait 
+test mail to secondary administrator has not been sent
+turn service on
+test resolved link
+ resolved-handler: 
+  2022/01/26 16:32:38 resolved http://34.118.64.175
+test service state is available
+ site-checker: 
+  2022/01/26 16:33:01 site http://34.118.64.175 available
+
+TEST PASSED
+```
+
+
 
 # Running locally
 ```
